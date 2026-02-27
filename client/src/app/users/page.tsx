@@ -5,9 +5,11 @@ import { useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import { Doc } from "../../../../convex/_generated/dataModel";
 import { Search, User } from "lucide-react";
+import ChatModal from "@/components/ChatModal";
 
 export default function UsersPage() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [activeChatUser, setActiveChatUser] = useState<Doc<"users"> | null>(null);
   
   // This hook automatically re-runs whenever searchTerm changes
   const users = useQuery(api.users.getUsers, { searchTerm });
@@ -38,6 +40,7 @@ export default function UsersPage() {
           users.map((user: Doc<"users">) => (
             <div 
               key={user._id} 
+              onClick={() => setActiveChatUser(user)}
               className="flex items-center gap-4 p-4 border rounded-xl hover:bg-gray-50 transition cursor-pointer"
             >
               <img 
@@ -53,6 +56,13 @@ export default function UsersPage() {
           ))
         )}
       </div>
+
+      {activeChatUser && (
+        <ChatModal 
+          user={activeChatUser} 
+          onClose={() => setActiveChatUser(null)} 
+        />
+      )}
     </main>
   );
 }
