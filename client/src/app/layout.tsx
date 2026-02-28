@@ -10,11 +10,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="bg-white">
+      <body className="bg-gray-100">
         <ConvexClientProvider>
           <PresenceProvider />
           <SyncUser />
-          {children}
+          <div className="min-h-screen">
+            {children}
+          </div>
         </ConvexClientProvider>
       </body>
     </html>

@@ -4,25 +4,21 @@ import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { Doc, Id } from "../../../convex/_generated/dataModel";
-import { X, Send, Trash2, ArrowLeft, ArrowDown, Smile, Loader2 } from "lucide-react"; // Added ArrowLeft
+import { X, Send, Trash2, ArrowLeft, ArrowDown, Smile, Loader2, CheckCircle2 } from "lucide-react";
 import { formatTimestamp } from "@/lib/utils";
 import EmojiPicker, { Theme } from "emoji-picker-react";
 
 const FIXED_EMOJIS = ["👍", "❤️", "😂", "😮", "😢"];
 
-export default function ChatModal({ 
-  user: initialUser, 
-  onClose 
-}: { 
-  user: Doc<"users">; 
-  onClose: () => void 
-}) {
+export default function ChatModal({ user: initialUser, onClose }: { user: Doc<"users">; onClose: () => void }) {
   const [input, setInput] = useState("");
   const [now, setNow] = useState(Date.now());
   const [selectedMessages, setSelectedMessages] = useState<Id<"messages">[]>([]);
+  const [focusedMessageId, setFocusedMessageId] = useState<Id<"messages"> | null>(null);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [isAtBottom, setIsAtBottom] = useState(true);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  
   const scrollRef = useRef<HTMLDivElement>(null);
   const emojiPickerRef = useRef<HTMLDivElement>(null);
 
@@ -42,30 +38,22 @@ export default function ChatModal({
       if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target as Node)) {
         setShowEmojiPicker(false);
       }
+      if (!(event.target as HTMLElement).closest('.message-container')) {
+        setFocusedMessageId(null);
+      }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const onEmojiClick = (emojiData: any) => {
-    setInput((prev) => prev + emojiData.emoji);
-  };
+  const onEmojiClick = (emojiData: any) => setInput((prev) => prev + emojiData.emoji);
   
   const toggleSelect = (id: Id<"messages">) => {
-    setSelectedMessages(prev =>
-      prev.includes(id) ? prev.filter(m => m !== id) : [...prev, id]
-    );
-  };
-
-  const handleDelete = async () => {
-    if (selectedMessages.length === 0) return;
-    await softDeleteMessages({ messageIds: selectedMessages });
-    setSelectedMessages([]);
+    setSelectedMessages(prev => prev.includes(id) ? prev.filter(m => m !== id) : [...prev, id]);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setInput(value);
+    setInput(e.target.value);
     setTyping({ receiverId: initialUser._id, isTyping: true });
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     typingTimeoutRef.current = setTimeout(() => {
@@ -76,49 +64,16 @@ export default function ChatModal({
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
-
-    const messageToRestore = input;
-
-    try {
-      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-      setTyping({ receiverId: initialUser._id, isTyping: false });
-      setInput(""); 
-
-      await sendMessage({ content: messageToRestore, receiverId: initialUser._id });
-    } catch (error) {
-      console.error("Failed to send message:", error);
-      setInput(messageToRestore);
-      alert("Failed to send message. Please check your connection.");
-    }
+    const content = input;
+    setInput(""); 
+    await sendMessage({ content, receiverId: initialUser._id });
   };
 
   const scrollToBottom = (behavior: "smooth" | "auto" = "smooth") => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTo({
-        top: scrollRef.current.scrollHeight,
-        behavior,
-      });
-    }
+    if (scrollRef.current) scrollRef.current.scrollTo({ top: scrollRef.current.scrollHeight, behavior });
   };
 
-  // Detect scroll position
-  const handleScroll = () => {
-    if (!scrollRef.current) return;
-    const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
-    const atBottom = scrollHeight - scrollTop <= clientHeight + 100;
-    setIsAtBottom(atBottom);
-    if (atBottom) setShowScrollButton(false);
-  };
-
-  // Handle new messages
-  useEffect(() => {
-    if (isAtBottom) {
-      scrollToBottom();
-    } else {
-      setShowScrollButton(true);
-    }
-  }, [messages]);
-
+  useEffect(() => { if (isAtBottom) scrollToBottom(); }, [messages]);
   useEffect(() => {
     const interval = setInterval(() => setNow(Date.now()), 2000);
     return () => clearInterval(interval);
@@ -127,150 +82,150 @@ export default function ChatModal({
   const isOnline = otherUser?.lastSeen && (now - otherUser.lastSeen < 2000);
 
   return (
-    <div className="flex flex-col h-full w-full bg-white animate-in slide-in-from-right-2 duration-200">
-
-        {/* Header */}
-        <div className="p-4 border-b flex justify-between items-center bg-white sticky top-0 z-10">
-          <div className="flex items-center gap-2 md:gap-3">
-            {/* Back button for mobile */}
-            <button onClick={onClose} className="p-2 -ml-2 hover:bg-gray-100 rounded-full md:hidden">
-                <ArrowLeft className="w-6 h-6" />
-            </button>
-
-            <div className="relative">
-              <img src={initialUser.image} className="w-10 h-10 rounded-full border shrink-0" alt="" />
-              {isOnline && (
-                <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full" />
-              )}
-            </div>
-            <div>
-              <h2 className="font-bold text-base md:text-lg leading-tight truncate max-w-37.5 md:max-w-none">
-                {initialUser.name}
-              </h2>
-              <p className="text-xs text-gray-500">{isOnline ? "Online" : "Offline"}</p>
-            </div>
-          </div>
-          
-          {/* Desktop Close Button */}
-          <button onClick={onClose} className="hidden md:block p-2 hover:bg-gray-100 rounded-full transition">
-            <X className="w-5 h-5" />
+    <div className="flex flex-col h-full w-full bg-white">
+      {/* Header */}
+      <div className="p-4 px-6 border-b flex justify-between items-center bg-white z-20">
+        <div className="flex items-center gap-3">
+          <button onClick={onClose} className="md:hidden p-2 -ml-2 hover:bg-gray-100 rounded-full text-gray-600">
+            <ArrowLeft className="w-5 h-5" />
           </button>
+          <div className="relative">
+            <img src={initialUser.image} className="w-10 h-10 rounded-2xl object-cover border shadow-sm" alt="" />
+            {isOnline && <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-white rounded-full" />}
+          </div>
+          <div>
+            <h2 className="font-bold text-[15px] text-gray-800 leading-tight">{initialUser.name}</h2>
+            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{isOnline ? "Online" : "Offline"}</p>
+          </div>
         </div>
+        <button onClick={onClose} className="hidden md:block p-2 hover:bg-gray-50 rounded-xl transition text-gray-400">
+          <X className="w-5 h-5" />
+        </button>
+      </div>
 
-        {/* Selection Delete Bar */}
-        {selectedMessages.length > 0 && (
-          <div className="p-3 bg-red-50 border-b flex justify-between items-center animate-in fade-in">
-            <span className="text-sm font-medium text-red-600">
-              {selectedMessages.length} selected
-            </span>
-            <button
-              onClick={handleDelete}
-              className="flex items-center gap-2 bg-red-600 text-white px-3 py-1 rounded-lg hover:bg-red-700 transition text-sm"
-            >
-              <Trash2 className="w-4 h-4" />
-              Delete
-            </button>
+      {/* Messages Area */}
+      <div 
+        ref={scrollRef} 
+        onScroll={() => {
+          if (!scrollRef.current) return;
+          const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
+          setIsAtBottom(scrollHeight - scrollTop <= clientHeight + 100);
+        }}
+        className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 bg-[#F8F9FB]"
+      >
+        {messages === undefined ? (
+          <div className="flex flex-col items-center justify-center h-full gap-3">
+            <Loader2 className="w-8 h-8 text-blue-500 animate-spin opacity-50" />
+            <p className="text-[10px] font-black text-gray-400 tracking-widest">Loading Chats</p>
           </div>
-        )}
-
-        {/* Messages */}
-        <div 
-          ref={scrollRef}
-          onScroll={handleScroll}
-          className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 scroll-smooth"
-        >
-          {messages === undefined ? (
-          <div className="flex-1 flex flex-col items-center justify-center text-gray-400 gap-2">
-            <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-            <p className="text-sm font-medium">Loading conversation</p>
-          </div>
-        ) : 
-        /* 2. ERROR STATE */
-        messages === null ? (
-          <div className="flex-1 flex flex-col items-center justify-center text-red-500 gap-2">
-            <div className="bg-red-50 p-3 rounded-full">
-              <X className="w-6 h-6" />
+        ) : messages.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full opacity-40 grayscale">
+            <div className="bg-gray-200 p-4 rounded-3xl mb-4">
+              <Smile size={32} className="text-gray-400" />
             </div>
-            <p className="text-sm font-medium">Failed to load messages</p>
-            <button 
-              onClick={() => window.location.reload()} 
-              className="text-xs text-blue-600 hover:underline mt-1"
-            >
-              Try refreshing the page
-            </button>
-          </div>
-        ) : 
-        /* 3. EMPTY STATE */
-        messages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-gray-400 space-y-2">
-            <span className="text-4xl">👋</span>
-            <p className="text-sm">Start the conversation!</p>
+            <p className="text-sm font-bold text-gray-500">No messages here yet</p>
+            <p className="text-xs text-gray-500">Say hello to {initialUser?.name}!</p>
           </div>
         ) : (
-          messages.map((msg) => {
+          messages?.map((msg) => {
+            const isMine = msg.isMine;
+            const isFocused = focusedMessageId === msg._id;
             const isSelected = selectedMessages.includes(msg._id);
-            // Grouping into one div so the "key" works correctly
+            const isSelectionMode = selectedMessages.length > 0;
+
+            const handleBubbleClick = (e: React.MouseEvent) => {
+              e.stopPropagation();
+              
+              // 1. If we are already selecting things, clicking the bubble toggles selection
+              if (isSelectionMode) {
+                toggleSelect(msg._id);
+              } else {
+                // 2. Otherwise, clicking the bubble shows the reaction tools (focus)
+                setFocusedMessageId(isFocused ? null : msg._id);
+              }
+            };
+
             return (
-              <div key={msg._id} className="flex flex-col space-y-1"> 
-                <div className={`flex group ${msg.isMine ? "justify-end" : "justify-start"}`}>
-                  <div className="relative flex items-center gap-2">
-                    {msg.isMine && !msg.isDeleted && (
-                      <input
-                        type="checkbox"
-                        checked={isSelected}
-                        onChange={() => toggleSelect(msg._id)}
-                        className="w-4 h-4 opacity-0 group-hover:opacity-100 transition accent-blue-600 cursor-pointer"
-                      />
-                    )}
-
-                    <div className={`max-w-[85%] md:max-w-[70%] p-3 rounded-2xl relative ${
-                        msg.isMine ? "bg-blue-600 text-white rounded-tr-none" : "bg-white border rounded-tl-none"
-                      } ${isSelected ? "ring-2 ring-red-400 ring-offset-1" : ""}`}
+              <div key={msg._id} className={`flex flex-col message-container w-full ${isMine ? "items-end" : "items-start"}`}>
+                <div className="flex items-center gap-3 max-w-[85%] md:max-w-[70%]">
+                  
+                  {/* Checkbox: Always show if selected, OR show if focused */}
+                  {(isFocused || isSelected) && isMine && !msg.isDeleted && (
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); toggleSelect(msg._id); }}
+                      className={`shrink-0 transition-all duration-200 ${
+                        isSelected 
+                          ? "text-gray-600 scale-110 opacity-100" 
+                          : "text-gray-300 opacity-70 hover:opacity-100"
+                      }`}
                     >
-                      {msg.isDeleted ? (
-                        <p className="text-sm italic opacity-70">Message deleted</p>
-                      ) : (
-                        <p className="text-sm leading-relaxed">{msg.content}</p>
-                      )}
+                      <CheckCircle2 
+                        size={22} 
+                        fill={isSelected ? "currentColor" : "#E5E7EB"} 
+                        className={isSelected ? "text-gray-600" : "text-gray-400"}
+                        stroke={isSelected ? "white" : "currentColor"}
+                        strokeWidth={isSelected ? 3 : 2}
+                      />
+                    </button>
+                  )}
 
-                      <p className={`text-[10px] mt-1 text-right ${msg.isMine ? "text-blue-100" : "text-gray-400"}`}>
-                        {formatTimestamp(msg._creationTime)}
-                      </p>
-
-                      {/* Hover Reactions */}
-                      {!msg.isDeleted && (
-                        <div className={`absolute -top-10 ${msg.isMine ? "right-0" : "left-0"} hidden group-hover:flex bg-white border shadow-xl rounded-full p-1 gap-1 z-20 animate-in fade-in zoom-in`}>
-                          {FIXED_EMOJIS.map((emoji) => (
-                            <button key={emoji} onClick={() => toggleReaction({ messageId: msg._id, emoji })} className="hover:scale-125 transition px-1 text-lg">
-                              {emoji}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
+                  <div 
+                    onClick={handleBubbleClick}
+                    className={`cursor-pointer p-4 rounded-3xl relative transition-all duration-200 shadow-sm ${
+                      isMine 
+                        ? "bg-linear-to-br from-blue-500 to-blue-600 text-white rounded-tr-none" 
+                        : "bg-white text-gray-800 rounded-tl-none"
+                    } ${isSelected ? "ring-2 ring-blue-500 ring-offset-2 scale-[0.98] opacity-90" : "hover:scale-[1.01]"}`}
+                  >
+                    {msg.isDeleted ? (
+                      <p className="text-sm italic opacity-60">Message deleted</p>
+                    ) : (
+                      <p className="text-[14px] leading-relaxed font-medium">{msg.content}</p>
+                    )}
+                    <p className="text-[9px] mt-1.5 font-bold uppercase tracking-tighter opacity-80 text-right">
+                      {formatTimestamp(msg._creationTime)}
+                    </p>
                   </div>
                 </div>
 
-                {/* Reaction Counts Display - Moved inside the keyed parent div */}
+                {/* Quick Reactions: Appear on Click */}
+                {isFocused && !msg.isDeleted && (
+                  <div className="flex gap-1 mt-2 animate-in fade-in zoom-in duration-200">
+                    {FIXED_EMOJIS.map((emoji) => (
+                      <button 
+                        key={emoji} 
+                        onClick={(e) => { 
+                          e.stopPropagation(); 
+                          toggleReaction({ messageId: msg._id, emoji }); 
+                        }}
+                        className="w-8 h-8 flex items-center justify-center bg-white border border-gray-100 rounded-full shadow-sm hover:scale-125 transition-transform text-sm"
+                      >
+                        {emoji}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* Reaction Display */}
                 {msg.reactions && msg.reactions.length > 0 && (
-                  <div className={`flex flex-wrap gap-1 ${msg.isMine ? "justify-end" : "justify-start"}`}>
-                    {Object.entries(
-                      msg.reactions.reduce((acc: Record<string, number>, r: any) => {
-                        acc[r.emoji] = (acc[r.emoji] || 0) + 1;
-                        return acc;
-                      }, {})
-                    ).map(([emoji, count]) => {
+                  <div className={`flex flex-wrap gap-1 mt-1 ${isMine ? "justify-end" : "justify-start"}`}>
+                    {Object.entries(msg.reactions.reduce((acc: any, r: any) => {
+                      acc[r.emoji] = (acc[r.emoji] || 0) + 1;
+                      return acc;
+                    }, {})).map(([emoji, count]: any) => {
                       const hasReacted = msg.reactions?.some((r: any) => r.userId === currentUser?._id && r.emoji === emoji);
                       return (
-                        <button
-                          key={emoji}
-                          onClick={() => toggleReaction({ messageId: msg._id, emoji })}
-                          className={`text-[11px] px-2 py-0.5 rounded-full border flex items-center gap-1 transition ${
-                            hasReacted ? "bg-blue-50 border-blue-200 text-blue-600" : "bg-white border-gray-200 text-gray-600"
+                        <button 
+                          key={emoji} 
+                          onClick={(e) => { 
+                            e.stopPropagation();
+                            toggleReaction({ messageId: msg._id, emoji }); 
+                          }}
+                          className={`px-2 py-0.5 rounded-lg text-[10px] font-bold flex gap-1 items-center shadow-sm border transition ${
+                            hasReacted ? "bg-blue-50 border-blue-200 text-blue-600" : "bg-white border-gray-100 text-gray-500"
                           }`}
                         >
-                          <span>{emoji}</span>
-                          <span>{count}</span>
+                          <span>{emoji}</span> <span>{count}</span>
                         </button>
                       );
                     })}
@@ -280,37 +235,32 @@ export default function ChatModal({
             );
           })
         )}
-        
-        {/* Typing Indicator */}
+
+        {/* Aligned Typing Indicator */}
         {otherUser?.isTypingId === currentUser?._id && (
-          <div className="flex justify-start">
-            <div className="bg-gray-200 px-4 py-2 rounded-2xl rounded-tl-none flex gap-1 items-center">
-              <span className="text-[13px] text-gray-500">
+          <div className="flex items-center bg-gray-100 w-fit px-4 py-2.5 rounded-2xl rounded-tl-none shadow-sm animate-in fade-in slide-in-from-left-2">
+            <div className="flex items-center gap-2">
+              <span className="text-[12px] font-bold text-blue-500 tracking-wider">
                 {currentUser?.name} is typing
               </span>
-              <span className="w-1.5 h-1.5 bg-gray-500 rounded-full animate-bounce" />
-              <span className="w-1.5 h-1.5 bg-gray-500 rounded-full animate-bounce [animation-delay:0.2s]" />
-              <span className="w-1.5 h-1.5 bg-gray-500 rounded-full animate-bounce [animation-delay:0.4s]" />
+              <div className="flex items-center gap-1 mt-0.5">
+                <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce [animation-duration:0.8s]" />
+                <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce [animation-duration:0.8s] [animation-delay:0.2s]" />
+                <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce [animation-duration:0.8s] [animation-delay:0.4s]" />
+              </div>
             </div>
           </div>
         )}
       </div>
 
-
-      {showScrollButton && (
-        <button onClick={() => scrollToBottom("smooth")} className="absolute bottom-24 left-1/2 -translate-x-1/2 bg-white shadow-xl border px-4 py-2 rounded-full text-sm font-semibold text-blue-600 flex items-center gap-2 z-20 hover:bg-gray-50">
-          <ArrowDown className="w-4 h-4" /> New messages
-        </button>
-      )}
-
-      {/* Input */}
-      <form onSubmit={handleSend} className="p-4 border-t bg-white flex items-center gap-2 relative">
+      {/* Input Section */}
+      <form onSubmit={handleSend} className="p-4 px-6 border-t bg-white flex items-center gap-3 relative z-30">
         <div className="relative" ref={emojiPickerRef}>
-          <button type="button" onClick={() => setShowEmojiPicker(!showEmojiPicker)} className="p-2 text-gray-500 hover:text-blue-600 transition">
-            <Smile className="w-6 h-6" />
+          <button type="button" onClick={() => setShowEmojiPicker(!showEmojiPicker)} className="text-gray-400 hover:text-blue-600 transition">
+            <Smile size={24} />
           </button>
           {showEmojiPicker && (
-            <div className="absolute bottom-full left-0 mb-2 z-50">
+            <div className="absolute bottom-full left-0 mb-4 shadow-2xl rounded-3xl overflow-hidden z-50">
               <EmojiPicker onEmojiClick={onEmojiClick} theme={Theme.LIGHT} />
             </div>
           )}
@@ -319,13 +269,26 @@ export default function ChatModal({
           type="text"
           value={input}
           onChange={handleInputChange}
-          placeholder="Type a message..."
-          className="flex-1 px-4 py-2.5 bg-gray-100 rounded-full focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+          placeholder="Write a message..."
+          className="flex-1 px-5 py-3 bg-gray-100 border-none rounded-2xl focus:ring-2 focus:ring-blue-500/20 outline-none text-sm font-medium"
         />
-        <button type="submit" disabled={!input.trim()} className="bg-blue-600 text-white p-2.5 rounded-full hover:bg-blue-700 disabled:opacity-50 transition">
-          <Send className="w-5 h-5" />
+        <button type="submit" disabled={!input.trim()} className="bg-linear-to-r from-blue-500 to-blue-600 text-white p-3 rounded-2xl shadow-md hover:shadow-lg transition-all active:scale-95 disabled:opacity-30">
+          <Send size={20} />
         </button>
       </form>
+
+      {/* Bulk Delete Bar */}
+      {selectedMessages.length > 0 && (
+        <div className="absolute top-18 left-0 right-0 p-3 px-6 bg-gray-400 flex justify-between items-center z-40 animate-in slide-in-from-top-full">
+          <span className="text-white text-xs font-black uppercase tracking-widest">{selectedMessages.length} Selected</span>
+          <div className="flex gap-3">
+             <button onClick={() => setSelectedMessages([])} className="text-white/80 text-xs font-bold hover:text-white">Cancel</button>
+             <button onClick={async () => { await softDeleteMessages({ messageIds: selectedMessages }); setSelectedMessages([]); }} className="bg-white text-red-600 px-4 py-1.5 rounded-xl text-xs font-black shadow-lg flex items-center gap-2">
+               <Trash2 size={14} /> Delete
+             </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
