@@ -66,6 +66,12 @@ export default function UsersPage() {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
+
+          <div className="mt-4 block md:hidden">
+            <p className="text-[10px] font-black text-gray-400 tracking-widest text-center py-2">
+              Select a user to start a conversation
+            </p>
+          </div>
         </div>
 
         {/* User List*/}

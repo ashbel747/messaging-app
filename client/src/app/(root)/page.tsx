@@ -25,7 +25,7 @@ export default function Home() {
             />
           </div>
           <span className="text-xl font-black tracking-tighter text-gray-900">
-            Flash Chat Messenger
+            Flash Chat
           </span>
         </div>
         <div>
@@ -45,7 +45,7 @@ export default function Home() {
       </nav>
 
       {/* Hero Section */}
-      <section className="max-w-7xl mx-auto px-6 pt-10 pb-10 text-center md:text-left grid md:grid-cols-2 gap-12 items-center">
+      <section className="max-w-7xl mx-auto px-6 pt-10 pb-5 text-center md:text-left grid md:grid-cols-2 gap-12 items-center">
         <div>
           <h1 className="text-5xl md:text-7xl font-black tracking-tight leading-[0.9] mb-6">
             Connect with <br /> 
@@ -53,7 +53,7 @@ export default function Home() {
           </h1>
           
           <p className="text-gray-500 text-lg md:text-xl max-w-md mb-8 font-medium leading-relaxed">
-            Connect with your friends and have conversations with this secure real-time messaging application
+            Invite your friends and have conversations with them in this secure real-time messaging application
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 items-center md:items-start">
@@ -86,7 +86,7 @@ export default function Home() {
       </section>
 
       {/* Footer / Info */}
-      <footer className="max-w-7xl mx-auto px-6 py-12 border-t border-gray-100 flex flex-col items-center justify-center gap-6 text-gray-400 text-xs font-bold tracking-widest text-center">
+      <footer className="max-w-7xl mx-auto px-6 pb-5 sm: fixed bottom-2 border-t border-gray-100 flex flex-col items-center justify-center gap-6 text-gray-400 text-xs font-bold tracking-widest text-center">
         <p>
           © {new Date().getFullYear()} Flash Chat. All rights reserved.
         </p>

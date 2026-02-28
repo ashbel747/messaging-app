@@ -182,7 +182,7 @@ export default function ChatModal({ user: initialUser, onClose }: { user: Doc<"u
                     ) : (
                       <p className="text-[14px] leading-relaxed font-medium">{msg.content}</p>
                     )}
-                    <p className="text-[9px] mt-1.5 font-bold uppercase tracking-tighter opacity-80 text-right">
+                    <p className="text-[9px] mt-1.5 font-bold tracking-tighter opacity-80 text-right">
                       {formatTimestamp(msg._creationTime)}
                     </p>
                   </div>
