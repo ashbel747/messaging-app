@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useQuery, useMutation } from "convex/react";
-import { api } from "../../../../convex/_generated/api";
-import { Doc } from "../../../../convex/_generated/dataModel";
+import { api } from "../../../convex/_generated/api";
+import { Doc } from "../../../convex/_generated/dataModel";
 import { Loader2, Search, Send, Users } from "lucide-react";
 import ChatModal from "@/components/ChatModal";
 import Image from "next/image";

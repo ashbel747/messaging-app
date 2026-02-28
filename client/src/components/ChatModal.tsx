@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation } from "convex/react";
-import { api } from "../../../convex/_generated/api";
-import { Doc, Id } from "../../../convex/_generated/dataModel";
+import { api } from "../../convex/_generated/api";
+import { Doc, Id } from "../../convex/_generated/dataModel";
 import { X, Send, Trash2, ArrowLeft, ArrowDown, Smile, Loader2, CheckCircle2 } from "lucide-react";
 import { formatTimestamp } from "@/lib/utils";
 import EmojiPicker, { Theme } from "emoji-picker-react";
