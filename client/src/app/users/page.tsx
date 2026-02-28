@@ -90,7 +90,7 @@ export default function UsersPage() {
             <div className="text-center py-20 text-sm text-gray-400 italic">No users found</div>
           ) : (
             users.map((user) => {
-              const isOnline = user.lastSeen && now - user.lastSeen < 5000;
+              const isOnline = user.lastSeen && now - user.lastSeen < 2000;
               const isActive = activeChatUser?._id === user._id;
               const unreadCount = unreadCounts[user._id] || 0;
 
