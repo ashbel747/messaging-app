@@ -14,6 +14,7 @@ export default defineSchema({
   conversations: defineTable({
     participantOne: v.id("users"),
     participantTwo: v.id("users"),
+    lastRead: v.optional(v.any()),
   }).index("by_participants", ["participantOne", "participantTwo"]),
 
   messages: defineTable({
@@ -22,5 +23,13 @@ export default defineSchema({
     content: v.string(),
     isDeleted: v.optional(v.boolean()),
     deletedAt: v.optional(v.number()),
+    reactions: v.optional(
+      v.array(
+        v.object({
+          userId: v.id("users"),
+          emoji: v.string(),
+        })
+      )
+    ),
   }).index("by_conversation", ["conversationId"]),
 });
