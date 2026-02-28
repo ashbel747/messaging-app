@@ -54,3 +54,43 @@ export const getUsers = query({
     });
   },
 });
+
+export const getMe = query({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) return null;
+    return await ctx.db
+      .query("users")
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
+      .unique();
+  },
+});
+
+export const updatePresence = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) return;
+    const user = await ctx.db.query("users").withIndex("by_clerkId", q => q.eq("clerkId", identity.subject)).unique();
+    if (user) await ctx.db.patch(user._id, { lastSeen: Date.now() });
+  },
+});
+
+// Set typing status
+export const setTyping = mutation({
+  args: { receiverId: v.id("users"), isTyping: v.boolean() },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) return;
+    const user = await ctx.db.query("users").withIndex("by_clerkId", q => q.eq("clerkId", identity.subject)).unique();
+    if (user) await ctx.db.patch(user._id, { isTypingId: args.isTyping ? args.receiverId : undefined });
+  },
+});
+
+export const getUserById = query({
+  args: { id: v.id("users") },
+  handler: async (ctx, args) => {
+    return await ctx.db.get(args.id);
+  },
+});

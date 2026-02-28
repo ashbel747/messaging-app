@@ -7,6 +7,8 @@ export default defineSchema({
     email: v.string(),
     image: v.string(),
     clerkId: v.string(),
+    lastSeen: v.optional(v.number()),
+    isTypingId: v.optional(v.id("users")),
   }).index("by_clerkId", ["clerkId"]),
 
   conversations: defineTable({
@@ -18,5 +20,7 @@ export default defineSchema({
     conversationId: v.id("conversations"),
     senderId: v.id("users"),
     content: v.string(),
+    isDeleted: v.optional(v.boolean()),
+    deletedAt: v.optional(v.number()),
   }).index("by_conversation", ["conversationId"]),
 });

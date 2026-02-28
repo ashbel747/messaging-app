@@ -76,7 +76,39 @@ export const getMessages = query({
 
     return messages.map(m => ({
       ...m,
-      isMine: m.senderId === currentUser._id
+      isMine: m.senderId === currentUser._id,
+      isDeleted: m.isDeleted ?? false,
     }));
+  },
+});
+
+export const softDeleteMessages = mutation({
+  args: {
+    messageIds: v.array(v.id("messages")),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Unauthorized");
+
+    const currentUser = await ctx.db
+      .query("users")
+      .withIndex("by_clerkId", q => q.eq("clerkId", identity.subject))
+      .unique();
+
+    if (!currentUser) throw new Error("User not found");
+
+    for (const id of args.messageIds) {
+      const message = await ctx.db.get(id);
+      if (!message) continue;
+
+      // SECURITY: only sender can delete
+      if (message.senderId !== currentUser._id) continue;
+
+      await ctx.db.patch(id, {
+        isDeleted: true,
+        deletedAt: Date.now(),
+        /* content: "", // optional: wipe content */
+      });
+    }
   },
 });

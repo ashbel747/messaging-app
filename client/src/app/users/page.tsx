@@ -1,17 +1,27 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import { Doc } from "../../../../convex/_generated/dataModel";
-import { Search, User } from "lucide-react";
+import { Search } from "lucide-react";
 import ChatModal from "@/components/ChatModal";
 
 export default function UsersPage() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [activeChatUser, setActiveChatUser] = useState<Doc<"users"> | null>(null);
-  
-  // This hook automatically re-runs whenever searchTerm changes
+  const [activeChatUser, setActiveChatUser] =
+    useState<Doc<"users"> | null>(null);
+  const [now, setNow] = useState(Date.now());
+
+  // Tick every 2s so online status recalculates
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setNow(Date.now());
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   const users = useQuery(api.users.getUsers, { searchTerm });
 
   return (
@@ -37,30 +47,45 @@ export default function UsersPage() {
         ) : users.length === 0 ? (
           <p className="text-gray-500">No users found.</p>
         ) : (
-          users.map((user: Doc<"users">) => (
-            <div 
-              key={user._id} 
-              onClick={() => setActiveChatUser(user)}
-              className="flex items-center gap-4 p-4 border rounded-xl hover:bg-gray-50 transition cursor-pointer"
-            >
-              <img 
-                src={user.image} 
-                alt={user.name} 
-                className="w-12 h-12 rounded-full border"
-              />
-              <div>
-                <h3 className="font-semibold text-lg">{user.name}</h3>
-                <p className="text-sm text-gray-500">{user.email}</p>
+          users.map((user) => {
+            const isOnline =
+              user.lastSeen && now - user.lastSeen < 2000;
+
+            return (
+              <div
+                key={user._id}
+                onClick={() => setActiveChatUser(user)}
+                className="flex items-center gap-4 p-4 border rounded-xl hover:bg-gray-50 transition cursor-pointer"
+              >
+                <div className="relative">
+                  <img
+                    src={user.image}
+                    alt={user.name}
+                    className="w-12 h-12 rounded-full border"
+                  />
+                  {isOnline && (
+                    <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full" />
+                  )}
+                </div>
+
+                <div>
+                  <h3 className="font-semibold text-lg">
+                    {user.name}
+                  </h3>
+                  <p className="text-sm text-gray-500">
+                    {isOnline ? "Online" : "Offline"}
+                  </p>
+                </div>
               </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
 
       {activeChatUser && (
-        <ChatModal 
-          user={activeChatUser} 
-          onClose={() => setActiveChatUser(null)} 
+        <ChatModal
+          user={activeChatUser}
+          onClose={() => setActiveChatUser(null)}
         />
       )}
     </main>
