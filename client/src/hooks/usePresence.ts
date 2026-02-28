@@ -12,7 +12,7 @@ export function usePresence() {
 
     update(); // initial call
 
-    const interval = setInterval(update, 2000); //after 2s
+    const interval = setInterval(update, 5000); //after 5s
 
     document.addEventListener("visibilitychange", update);
     window.addEventListener("focus", update);

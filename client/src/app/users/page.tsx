@@ -20,7 +20,7 @@ export default function UsersPage() {
   const unreadCounts = useQuery(api.messages.getUnreadCounts) || {};
 
   useEffect(() => {
-    const interval = setInterval(() => setNow(Date.now()), 2000);
+    const interval = setInterval(() => setNow(Date.now()), 5000);
     return () => clearInterval(interval);
   }, []);
 
@@ -90,7 +90,7 @@ export default function UsersPage() {
             <div className="text-center py-20 text-sm text-gray-400 italic">No users found</div>
           ) : (
             users.map((user) => {
-              const isOnline = user.lastSeen && now - user.lastSeen < 2000;
+              const isOnline = user.lastSeen && now - user.lastSeen < 5000;
               const isActive = activeChatUser?._id === user._id;
               const unreadCount = unreadCounts[user._id] || 0;
 
@@ -98,10 +98,10 @@ export default function UsersPage() {
                 <div
                   key={user._id}
                   onClick={() => handleSelectUser(user)}
-                  className={`flex items-center gap-4 p-4 rounded-2xl transition-all duration-200 cursor-pointer border-none ${
+                  className={`flex bg-gray-100 items-center gap-4 p-4 rounded-2xl transition-all duration-200 cursor-pointer border-none ${
                     isActive 
-                      ? "bg-gray-100 shadow-sm scale-[1.02]" 
-                      : "hover:bg-gray-50"
+                      ? "bg-gray-200 shadow-sm scale-[1.02]" 
+                      : "hover:bg-gray-200"
                   }`}
                 >
                   <div className="relative shrink-0">
