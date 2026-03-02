@@ -10,21 +10,6 @@
 
 Flash Chat is a modern communication tool that leverages a fully reactive backend to provide instantaneous messaging, presence tracking, and unread notifications without the overhead of traditional WebSocket management.
 
-**🛠️ Tech Stack**
-This looks like a solid README for your Tars internship challenge! I've updated the Tech Stack section with high-quality badges that use the official logos for Next.js, TypeScript, Tailwind CSS, and Convex. I also cleaned up some of the formatting to ensure it looks professional when rendered on GitHub.
-
-Flashchat Messenger App
-<p align="center">
-<img
-src="https://flash-chat-blush.vercel.app/chat-icon.jpg"
-alt="Flashchat Logo"
-width="120"
-style="border-radius: 20%;"
-/>
-</p>
-
-Flash Chat is a modern communication tool that leverages a fully reactive backend to provide instantaneous messaging, presence tracking, and unread notifications without the overhead of traditional WebSocket management.
-
 🛠️ Tech Stack
 
 <p align="left">
