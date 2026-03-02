@@ -8,12 +8,32 @@
   />
 </p>
 
-> A high-performance, real-time messaging platform built for the Tars Full Stack Internship Challenge 2026.
-
 Flash Chat is a modern communication tool that leverages a fully reactive backend to provide instantaneous messaging, presence tracking, and unread notifications without the overhead of traditional WebSocket management.
 
 **🛠️ Tech Stack**
+This looks like a solid README for your Tars internship challenge! I've updated the Tech Stack section with high-quality badges that use the official logos for Next.js, TypeScript, Tailwind CSS, and Convex. I also cleaned up some of the formatting to ensure it looks professional when rendered on GitHub.
 
+Flashchat Messenger App
+<p align="center">
+<img
+src="https://flash-chat-blush.vercel.app/chat-icon.jpg"
+alt="Flashchat Logo"
+width="120"
+style="border-radius: 20%;"
+/>
+</p>
+
+Flash Chat is a modern communication tool that leverages a fully reactive backend to provide instantaneous messaging, presence tracking, and unread notifications without the overhead of traditional WebSocket management.
+
+🛠️ Tech Stack
+
+<p align="left">
+<img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" alt="Next.js" />
+<img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
+<img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" />
+<img src="https://img.shields.io/badge/Convex-FFDA44?style=for-the-badge&logo=convex&logoColor=black" alt="Convex" />
+<img src="https://img.shields.io/badge/Clerk-6C47FF?style=for-the-badge&logo=clerk&logoColor=white" alt="Clerk" />
+</p>
 
 **✨ Key Features**
 Real-time Messaging: Messages appear instantly across all devices using Convex subscriptions.
