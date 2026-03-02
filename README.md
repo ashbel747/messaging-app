@@ -1,4 +1,5 @@
-Flash Chat
+<img src="https://flash-chat-blush.vercel.app/chat-icon.jpg" width="40" height="40" style="vertical-align:middle; border-radius:8px;">
+# Flash Chat
 A high-performance, real-time messaging platform built for the Tars Full Stack Internship Challenge 2026.
 
 Flash Chat is a modern communication tool that leverages a fully reactive backend to provide instantaneous messaging, presence tracking, and unread notifications without the overhead of traditional WebSocket management.
