@@ -63,20 +63,18 @@ npm install
 a) Create a .env.local file in the convex folder in the client directory and paste the following configuration:
 
 ```bash
-# Convex Backend Configuration
-CONVEX_DEPLOYMENT=dev:gallant-goose-668
-NEXT_PUBLIC_CONVEX_URL=https://gallant-goose-668.eu-west-1.convex.cloud
-CONVEX_URL=https://gallant-goose-668.eu-west-1.convex.cloud
-CONVEX_SITE_URL=https://gallant-goose-668.eu-west-1.convex.site
-NEXT_PUBLIC_CONVEX_SITE_URL=https://gallant-goose-668.eu-west-1.convex.site
+# Convex Configuration (Get these from 'npx convex dev')
+CONVEX_DEPLOYMENT=
+NEXT_PUBLIC_CONVEX_URL=
+CONVEX_URL=
 ```
 b) Create a .env.local file in the root level of the client directory and paste the following configuration:
 
 ```bash
-# Clerk Authentication
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_Y2hhcm1pbmctbWFtbW90aC0zMi5jbGVyay5hY2NvdW50cy5kZXYk
-CLERK_SECRET_KEY=sk_test_5K9IVBjm53poBYUFGIsWCdEpWzkUIBKyxSWMJ6KD5Y
-CLERK_JWT_ISSUER_DOMAIN=https://charming-mammoth-32.clerk.accounts.dev
+# Clerk Authentication (Get these from Clerk Dashboard)
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_publishable_key
+CLERK_SECRET_KEY=your_secret_key
+CLERK_JWT_ISSUER_DOMAIN=your_clerk_issuer_domain
 ```
 4. Run the Development Environment
 You will need to run two processes simultaneously. It is recommended to use two different terminal tabs:
