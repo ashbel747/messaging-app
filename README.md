@@ -1,13 +1,21 @@
-<img src="https://flash-chat-blush.vercel.app/chat-icon.jpg" width="40" height="40" style="vertical-align:middle; border-radius:8px;">
-# Flash Chat
-A high-performance, real-time messaging platform built for the Tars Full Stack Internship Challenge 2026.
+# Flashchat Messanger App
+
+<p align="center">
+  <img
+    src="https://flash-chat-blush.vercel.app/chat-icon.jpg"
+    alt="Flashchat Logo"
+    width="120"
+  />
+</p>
+
+> A high-performance, real-time messaging platform built for the Tars Full Stack Internship Challenge 2026.
 
 Flash Chat is a modern communication tool that leverages a fully reactive backend to provide instantaneous messaging, presence tracking, and unread notifications without the overhead of traditional WebSocket management.
 
-🛠️ Tech Stack
+**🛠️ Tech Stack**
 
 
-✨ Key Features
+**✨ Key Features**
 Real-time Messaging: Messages appear instantly across all devices using Convex subscriptions.
 
 Live Presence: Real-time green indicators for "Active Now" status with a smart 5-second heartbeat system.
@@ -20,7 +28,7 @@ Smart Auto-Scroll: Automatically scrolls to the latest message with a manual ove
 
 User Discovery: Search for any registered user by username to start a new conversation instantly.
 
-📂 Project Structure
+**📂 Project Structure**
 ```bash
 client/
 ├── convex/                # Backend functions (Mutations, Queries, Schema)
@@ -34,7 +42,7 @@ client/
 │   ├── hooks/             # Custom React Hooks (for usePresence)
 │   └── lib/               # Utils for message timestamps
 ```
-💻 Local Setup Instructions
+**💻 Local Setup Instructions**
 Follow these steps to get Flash Chat running on your local machine.
 
 1. Clone the repository
@@ -82,7 +90,7 @@ npm run dev
 ```
 The local app should now be running at http://localhost:3000.
 
-🏗️ Implementation Details
+**🏗️ Implementation Details**
 Real-time Presence System
 The "Online" status is managed via a Heartbeat Pattern.
 
